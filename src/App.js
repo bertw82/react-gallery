@@ -5,17 +5,22 @@ import {
   Switch
 } from 'react-router-dom';
 import axios from 'axios';
-import Header from './Header';
-import SearchForm from './SearchForm';
-import Buttons from './Buttons';
-import PhotoContainer from './PhotoContainer';
-import apiKey from '../config';
+import Header from './components/Header';
+import SearchForm from './components/SearchForm';
+import Nav from './components/Nav';
+import PhotoContainer from './components/PhotoContainer';
+import apiKey from './config';
 
 export default class App extends Component {
   constructor() {
     super();
     this.state = {
       pics: []
+    };
+    this.navButtons = {
+      nav1: "Cats",
+      nav2: "Sailboats",
+      nav3: "Sunsets"
     };
     this.performSearch = this.performSearch.bind(this);
   }
@@ -42,7 +47,7 @@ export default class App extends Component {
         <div className="container">
           <Header />
           <SearchForm onSearch={this.performSearch} />
-          <Buttons />
+          <Nav navButtons={this.navButtons}/>
           <PhotoContainer data={this.state.pics} />
         </div>
     );
