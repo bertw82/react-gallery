@@ -15,7 +15,10 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = {
-      pics: []
+      pics: [],
+      cats: [],
+      sailboats: [],
+      sunsets: [],
     };
     this.navButtons = {
       nav1: "Cats",
@@ -23,17 +26,35 @@ export default class App extends Component {
       nav3: "Sunsets"
     };
     this.performSearch = this.performSearch.bind(this);
+    this.preloadPics = this.preloadPics.bind(this);
   }
 
   componentDidMount() {
     this.performSearch();
+    this.preloadPics();
+  }
+
+  preloadPics() {
+    const cats = axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=cats&per_page=24&format=json&nojsoncallback=1`);
+    const sailboats = axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=sailboats&per_page=24&format=json&nojsoncallback=1`);
+    const sunsets = axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=sunsets&per_page=24&format=json&nojsoncallback=1`);
+
+    Promise.all([cats, sailboats, sunsets])
+      .then(response => {
+        this.setState({
+          cats: response[0].data.photos.photo,
+          sailboats: response[1].data.photos.photo,
+          sunsets: response[2].data.photos.photo
+        });
+      });
   }
 
   performSearch(query) {
-    axios.get(`http://api.giphy.com/v1/gifs/search?q=${query}&limit=24&api_key=${apiKey}`)
+    axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`)
       .then(response => {
+        console.log(response);
         this.setState({
-          pics: response.data.data
+          pics: response.data.photos.photo,
         });
       })
       .catch(error => {
@@ -42,14 +63,21 @@ export default class App extends Component {
   }
 
   render() {
-    console.log(this.state.pics)
     return (
+      <BrowserRouter>
         <div className="container">
           <Header />
           <SearchForm onSearch={this.performSearch} />
-          <Nav navButtons={this.navButtons}/>
-          <PhotoContainer data={this.state.pics} />
+          <Nav navButtons={this.navButtons} />
+          <Switch>
+            <Route path="/cats" render={ () => <PhotoContainer data={this.state.cats}/> } />
+            <Route path="/sailboats" render={ () => <PhotoContainer data={this.state.sailboats}/> } />
+            <Route path="/sunsets" render={ () => <PhotoContainer data={this.state.sunsets}/> } />
+            <Route path="/search_results" render={ () => <PhotoContainer data={this.state.pics} search={this.performSearch}/> } /> 
+          </Switch>
         </div>
+      </BrowserRouter>
+      
     );
   }
 }
