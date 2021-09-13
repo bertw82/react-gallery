@@ -19,6 +19,7 @@ export default class App extends Component {
       cats: [],
       sailboats: [],
       sunsets: [],
+      loading: false
     };
     this.navButtons = {
       nav1: "Cats",
@@ -49,12 +50,13 @@ export default class App extends Component {
       });
   }
 
-  performSearch(query) {
+  performSearch(query = 'mountains') {
+    this.setState({loading: true})
     axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`)
       .then(response => {
-        console.log(response);
         this.setState({
           pics: response.data.photos.photo,
+          loading: false
         });
       })
       .catch(error => {
@@ -73,7 +75,7 @@ export default class App extends Component {
             <Route path="/cats" render={ () => <PhotoContainer data={this.state.cats}/> } />
             <Route path="/sailboats" render={ () => <PhotoContainer data={this.state.sailboats}/> } />
             <Route path="/sunsets" render={ () => <PhotoContainer data={this.state.sunsets}/> } />
-            <Route path="/search_results" render={ () => <PhotoContainer data={this.state.pics} search={this.performSearch}/> } /> 
+            <Route render={ () => <PhotoContainer data={this.state.pics} loading={this.state.loading}/> } /> 
           </Switch>
         </div>
       </BrowserRouter>
