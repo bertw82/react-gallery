@@ -19,6 +19,7 @@ export default class App extends Component {
       cats: [],
       sailboats: [],
       sunsets: [],
+      query: '',
       loading: false
     };
     this.navButtons = {
@@ -55,6 +56,7 @@ export default class App extends Component {
     axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`)
       .then(response => {
         this.setState({
+          query,
           pics: response.data.photos.photo,
           loading: false
         });
@@ -75,7 +77,7 @@ export default class App extends Component {
             <Route path="/cats" render={ () => <PhotoContainer data={this.state.cats}/> } />
             <Route path="/sailboats" render={ () => <PhotoContainer data={this.state.sailboats}/> } />
             <Route path="/sunsets" render={ () => <PhotoContainer data={this.state.sunsets}/> } />
-            <Route render={ () => <PhotoContainer data={this.state.pics} loading={this.state.loading}/> } /> 
+            <Route render={ () => <PhotoContainer data={this.state.pics} loading={this.state.loading} query={this.state.query} /> } /> 
           </Switch>
         </div>
       </BrowserRouter>
