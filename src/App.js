@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {
   BrowserRouter,
   Route,
-  Switch
+  Switch,
+  Redirect
 } from 'react-router-dom';
 import axios from 'axios';
 import Header from './components/Header';
@@ -16,6 +17,7 @@ export default class App extends Component {
     super();
     this.state = {
       pics: [],
+      mountains: [],
       cats: [],
       sailboats: [],
       sunsets: [],
@@ -37,25 +39,27 @@ export default class App extends Component {
   }
 
   preloadPics() {
+    const mountains = axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=mountains&per_page=24&format=json&nojsoncallback=1`);
     const cats = axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=cats&per_page=24&format=json&nojsoncallback=1`);
     const sailboats = axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=sailboats&per_page=24&format=json&nojsoncallback=1`);
     const sunsets = axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=sunsets&per_page=24&format=json&nojsoncallback=1`);
-
-    Promise.all([cats, sailboats, sunsets])
+    
+    Promise.all([mountains, cats, sailboats, sunsets])
       .then(response => {
         this.setState({
-          cats: response[0].data.photos.photo,
-          sailboats: response[1].data.photos.photo,
-          sunsets: response[2].data.photos.photo
+          mountains: response[0].data.photos.photo,
+          cats: response[1].data.photos.photo,
+          sailboats: response[2].data.photos.photo,
+          sunsets: response[3].data.photos.photo,
         });
       });
   }
 
-  performSearch(query = 'mountains') {
+  performSearch(query) {
     this.setState({loading: true})
     axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`)
       .then(response => {
-        this.setState({
+        this.setState({   
           query,
           pics: response.data.photos.photo,
           loading: false
@@ -73,12 +77,47 @@ export default class App extends Component {
           <Header />
           <SearchForm onSearch={this.performSearch} />
           <Nav navButtons={this.navButtons} />
-          <Switch>
-            <Route path="/cats" render={ () => <PhotoContainer data={this.state.cats}/> } />
-            <Route path="/sailboats" render={ () => <PhotoContainer data={this.state.sailboats}/> } />
-            <Route path="/sunsets" render={ () => <PhotoContainer data={this.state.sunsets}/> } />
-            <Route render={ () => <PhotoContainer data={this.state.pics} loading={this.state.loading} query={this.state.query} /> } /> 
-          </Switch>
+          {
+            (this.state.loading)
+            ? <h2>Loading...</h2>
+            : <Switch>
+                <Route exact path="/" render={ () => 
+                  <Redirect to="/mountains"/>} />
+                <Route path="/mountains" render={ () => 
+                  <PhotoContainer 
+                    data={this.state.mountains} 
+                    title={"MOUNTAINS"}  
+                  />} 
+                />
+                <Route path="/cats" render={ () => 
+                  <PhotoContainer 
+                    data={this.state.cats} 
+                    title={"CATS"} 
+                  /> } 
+                />
+                <Route path="/sailboats" render={ () => 
+                  <PhotoContainer 
+                    data={this.state.sailboats} 
+                    title={"SAILBOATS"} 
+                  /> } 
+                />
+                <Route path="/sunsets" render={ () => 
+                  <PhotoContainer 
+                    data={this.state.sunsets} 
+                    title={"SUNSETS"} 
+                  /> } 
+                />
+                <Route path="/search_results/:query" render={ () => 
+                  <PhotoContainer 
+                    data={this.state.pics} 
+                    loading={this.state.loading} 
+                    title={this.state.query.toUpperCase()} 
+                    query={this.state.query} 
+                    performSearch={this.performSearch}
+                  /> } 
+                /> 
+              </Switch>
+          }
         </div>
       </BrowserRouter>
       
