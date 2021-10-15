@@ -31,11 +31,10 @@ export default class App extends Component {
     };
     this.performSearch = this.performSearch.bind(this);
     this.preloadPics = this.preloadPics.bind(this);
-    this.changeQuery = this.changeQuery.bind(this);
   }
 
   componentDidMount() {
-    this.performSearch();
+    // this.performSearch();
     this.preloadPics();
   }
 
@@ -56,7 +55,7 @@ export default class App extends Component {
       });
   }
 
-  performSearch(query) {
+  performSearch(query = "mountains") {
     this.setState({loading: true})
     fetch(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`)
       .then(res => res.json())
@@ -72,12 +71,6 @@ export default class App extends Component {
       });    
   }
 
-  changeQuery(newQuery) {
-    this.setState({
-      query: newQuery
-    })
-  }
-
   render() {
     return (
       <BrowserRouter>
@@ -89,30 +82,30 @@ export default class App extends Component {
             (this.state.loading)
             ? <h2>Loading...</h2>
             : <Switch>
-                {/* <Route exact path="/" render={ () => 
-                  <Redirect to="/mountains"/>} /> */}
                 <Route exact path="/" render={ () => 
+                  <Redirect to="/mountains"/>} />
+                <Route path="/mountains" render={ () => 
                   <PhotoContainer 
                     data={this.state.mountains} 
-                    title={"MOUNTAINS"}  
+                    title={"Mountains"}  
                   />} 
                 />
                 <Route path="/cats" render={ () => 
                   <PhotoContainer 
                     data={this.state.cats} 
-                    title={"CATS"} 
+                    title={"Cats"} 
                   /> } 
                 />
                 <Route path="/sailboats" render={ () => 
                   <PhotoContainer 
                     data={this.state.sailboats} 
-                    title={"SAILBOATS"} 
+                    title={"Sailboats"} 
                   /> } 
                 />
                 <Route path="/sunsets" render={ () => 
                   <PhotoContainer 
                     data={this.state.sunsets} 
-                    title={"SUNSETS"} 
+                    title={"Sunsets"} 
                   /> } 
                 />
                 <Route path="/search_results/:query" render={ () => 
@@ -121,7 +114,6 @@ export default class App extends Component {
                     loading={this.state.loading} 
                     title={this.state.query} 
                     onSearch={this.performSearch}
-                    onChange={this.changeQuery}
                   /> } 
                 /> 
               </Switch>
