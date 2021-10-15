@@ -8,7 +8,12 @@ class PhotoContainer extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.location.pathname.includes('search_results')) {
       if (this.props.location.pathname !== prevProps.location.pathname) {
-        this.props.performSearch(this.props.location.pathname.slice(16));
+        this.props.onSearch(this.props.location.pathname.slice(16));
+        this.props.onChange(this.props.location.pathname.slice(16));
+      } 
+      else {
+        this.props.onSearch(prevProps.location.pathname.slice(16));
+        this.props.onChange(prevProps.location.pathname.slice(16));
       }
     }
   }
@@ -23,6 +28,9 @@ class PhotoContainer extends Component {
       pictures = results.map(pic =>
         <Pics url={`https://live.staticflickr.com/${pic.server}/${pic.id}_${pic.secret}.jpg`} key={pic.id} title={pic.title} />);
     }
+
+    console.log(this.props);
+    console.log(this.prevProps)
 
     return (
       <div className="photo-container">

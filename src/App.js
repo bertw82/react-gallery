@@ -31,6 +31,7 @@ export default class App extends Component {
     };
     this.performSearch = this.performSearch.bind(this);
     this.preloadPics = this.preloadPics.bind(this);
+    this.changeQuery = this.changeQuery.bind(this);
   }
 
   componentDidMount() {
@@ -57,17 +58,24 @@ export default class App extends Component {
 
   performSearch(query) {
     this.setState({loading: true})
-    axios.get(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`)
+    fetch(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${apiKey}&tags=${query}&per_page=24&format=json&nojsoncallback=1`)
+      .then(res => res.json())
       .then(response => {
         this.setState({   
           query,
-          pics: response.data.photos.photo,
+          pics: response.photos.photo,
           loading: false
         });
       })
       .catch(error => {
         console.log('Error fetching and parsing data', error);
       });    
+  }
+
+  changeQuery(newQuery) {
+    this.setState({
+      query: newQuery
+    })
   }
 
   render() {
@@ -81,9 +89,9 @@ export default class App extends Component {
             (this.state.loading)
             ? <h2>Loading...</h2>
             : <Switch>
+                {/* <Route exact path="/" render={ () => 
+                  <Redirect to="/mountains"/>} /> */}
                 <Route exact path="/" render={ () => 
-                  <Redirect to="/mountains"/>} />
-                <Route path="/mountains" render={ () => 
                   <PhotoContainer 
                     data={this.state.mountains} 
                     title={"MOUNTAINS"}  
@@ -111,9 +119,9 @@ export default class App extends Component {
                   <PhotoContainer 
                     data={this.state.pics} 
                     loading={this.state.loading} 
-                    title={this.state.query.toUpperCase()} 
-                    query={this.state.query} 
-                    performSearch={this.performSearch}
+                    title={this.state.query} 
+                    onSearch={this.performSearch}
+                    onChange={this.changeQuery}
                   /> } 
                 /> 
               </Switch>
