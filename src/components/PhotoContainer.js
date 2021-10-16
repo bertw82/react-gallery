@@ -14,19 +14,30 @@ class PhotoContainer extends Component {
       } else {
         this.props.onSearch(prevPropsSearch);
       }
-    }
+    };
   }
     
   render() {
     const results = this.props.data;
+    const dataType = this.props.dataType;
     let pictures;
 
-    if (results.length > 0) {
-      pictures = results.map(pic =>
-        <Pics url={`https://live.staticflickr.com/${pic.server}/${pic.id}_${pic.secret}.jpg`} key={pic.id} title={pic.title} />);
+    if (dataType === "preset") {
+      if (results.length > 0) {
+        pictures = results.map(pic =>
+          <Pics url={`https://live.staticflickr.com/${pic.server}/${pic.id}_${pic.secret}.jpg`} key={pic.id} title={pic.title} />);
+      } else {
+        pictures = <h2>Wait a second...</h2>
+      }
     } else {
-      pictures = <NoPics />
+      if (results.length > 0) {
+        pictures = results.map(pic =>
+          <Pics url={`https://live.staticflickr.com/${pic.server}/${pic.id}_${pic.secret}.jpg`} key={pic.id} title={pic.title} />);
+      } else {
+        pictures = <NoPics />
+      }
     }
+    
 
     return (
       <div className="photo-container">
